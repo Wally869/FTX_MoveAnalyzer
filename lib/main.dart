@@ -1,0 +1,231 @@
+import 'package:flutter/material.dart';
+
+import 'simple.dart';
+import 'package:tailwind_colors/tailwind_colors.dart';
+
+const colorBackgroundMarketReplay = const Color(0xFF181632);
+const colorForegroundMarketReplay = const Color(0xFF282644);
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'FTX - Move Contracts Analyzer',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: MyHomePage(title: 'FTX - Move Contracts Analyzer'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    num widthWindow = MediaQuery.of(context).size.width;
+    num heightWindow = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      backgroundColor: TWColors.blue[100],
+      body: Center(
+        child: Container(
+            width: (widthWindow > 1000)
+                ? (widthWindow > 1500) ? 1000 : widthWindow * 0.65
+                : widthWindow,
+            height: (heightWindow > 750) ? heightWindow * 0.7 : double.infinity,
+            padding: EdgeInsets.all(50),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              boxShadow: [
+                BoxShadow(
+                  spreadRadius: -3,
+                  blurRadius: 10,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                ContainerHeader(),
+                Container(
+                  // SEPERATOR
+                  margin: EdgeInsets.all(30),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: TWColors.blue[700], width: 2.0),
+                  ),
+                ),
+                ContainerDisplay(),
+              ],
+            )),
+      ),
+    );
+  }
+}
+
+class ContainerHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    double titleFontSize = (MediaQuery.of(context).size.width > 1000) ? 36 : 20;
+
+    return (MediaQuery.of(context).size.width > 500)
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "FTX Move\nAnalyzer",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'JetBrainsMono',
+                  fontSize: titleFontSize,
+                  color: TWColors.blue[700],
+                ),
+              ),
+              Text("Placeholder prices"),
+              Text("Placeholder refresh button"),
+            ],
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    "FTX Move\nAnalyzer",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'JetBrainsMono',
+                      fontSize: titleFontSize,
+                      color: TWColors.blue[700],
+                    ),
+                  ),
+                  Container(
+                    height: 10,
+                  ),
+                  Text("Placeholder prices"),
+                  Container(
+                    height: 10,
+                  ),
+                  Text("Placeholder refresh button"),
+                ],
+              ),
+            ],
+          );
+  }
+}
+
+class ContainerDisplay extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    double fontSize = (MediaQuery.of(context).size.width > 1000) ? 36 : 20;
+
+    return (MediaQuery.of(context).size.width > 550)
+        ? Expanded(
+            child: Container(
+              child: Row(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Container(
+                        height: 25,
+                        child: RaisedButton(
+                          onPressed: null,
+                          child: Text("Button0"),
+                        ),
+                      ),
+                      Container(
+                        height: 25,
+                        child: RaisedButton(
+                          onPressed: null,
+                          child: Text("Button0"),
+                        ),
+                      ),
+                      Container(
+                        height: 25,
+                        child: RaisedButton(
+                          onPressed: null,
+                          child: Text("Button0"),
+                        ),
+                      ),
+                      Container(
+                        height: 25,
+                        child: RaisedButton(
+                          onPressed: null,
+                          child: Text("Button0"),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: 50,
+                  ),
+                  Expanded(
+                    child: Container(
+                      child: SimpleBarChart.withSampleData(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        : Expanded(
+            child: Container(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      RaisedButton(
+                        onPressed: null,
+                        child: Text("Button0"),
+                      ),
+                      RaisedButton(
+                        onPressed: null,
+                        child: Text("Button1"),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      RaisedButton(
+                        onPressed: null,
+                        child: Text("Button2"),
+                      ),
+                      RaisedButton(
+                        onPressed: null,
+                        child: Text("Button3"),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    height: 25,
+                  ),
+                  Expanded(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: SimpleBarChart.withSampleData(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+  }
+}
