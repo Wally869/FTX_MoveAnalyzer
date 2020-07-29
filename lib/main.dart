@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'simple.dart';
 import 'package:tailwind_colors/tailwind_colors.dart';
 
+import 'ftxQueryClasses.dart';
+import 'ftxQuery.dart';
+
 const colorBackgroundMarketReplay = const Color(0xFF181632);
 const colorForegroundMarketReplay = const Color(0xFF282644);
 
@@ -35,6 +38,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Future<ExpiredFutures> expiredFuturesData;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    //expiredFuturesData = fetchExpiredContractsData();
+  }
+
+  void callRefresh() {
+    print("refresh called");
+  }
+
   @override
   Widget build(BuildContext context) {
     num widthWindow = MediaQuery.of(context).size.width;
@@ -62,7 +78,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             child: Column(
               children: [
-                ContainerHeader(),
+                ContainerHeader(
+                  refreshFunction: callRefresh,
+                ),
                 Container(
                   // SEPERATOR
                   margin: EdgeInsets.all(30),
@@ -79,6 +97,10 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class ContainerHeader extends StatelessWidget {
+  final refreshFunction;
+
+  ContainerHeader({this.refreshFunction});
+
   @override
   Widget build(BuildContext context) {
     double titleFontSize = (MediaQuery.of(context).size.width > 1000) ? 36 : 20;
@@ -97,7 +119,10 @@ class ContainerHeader extends StatelessWidget {
                 ),
               ),
               Text("Placeholder prices"),
-              Text("Placeholder refresh button"),
+              RaisedButton(
+                onPressed: () => refreshFunction(),
+                child: Text("Refresh"),
+              ),
             ],
           )
         : Row(
@@ -121,7 +146,10 @@ class ContainerHeader extends StatelessWidget {
                   Container(
                     height: 10,
                   ),
-                  Text("Placeholder refresh button"),
+                  RaisedButton(
+                    onPressed: () => refreshFunction(),
+                    child: Text("Refresh"),
+                  ),
                 ],
               ),
             ],
