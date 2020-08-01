@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'simple.dart';
 import 'package:tailwind_colors/tailwind_colors.dart';
 
 import 'ftxQueryClasses.dart';
@@ -44,7 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     expiredFuturesData = fetchExpiredContractsData();
   }
@@ -90,8 +88,40 @@ class _MyHomePageState extends State<MyHomePage> {
                     border: Border.all(color: TWColors.blue[700], width: 2.0),
                   ),
                 ),
-                ContainerDisplay(
-                  expiredFuturesData: expiredFuturesData,
+                Container(
+                  /*
+                    child: Container(
+                      child: SimpleBarChart.withSampleData(),
+                    ),
+                    */
+                  child: FutureBuilder<ExpiredFutures>(
+                    future: expiredFuturesData,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<ExpiredFutures> snapshot) {
+                      if (snapshot.hasData) {
+                        //return SimpleBarChart.withSampleData();
+                        return ContainerDisplay(
+                          expiredFuturesData: snapshot.data,
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              child: CircularProgressIndicator(),
+                              width: 60,
+                              height: 60,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: Text('Awaiting result...'),
+                            )
+                          ],
+                        );
+                      }
+                    },
+                  ),
                 ),
               ],
             )),
@@ -161,20 +191,53 @@ class ContainerHeader extends StatelessWidget {
   }
 }
 
+
+enum TypeChart {
+  averagePrices,
+  confidenceIntervals
+}
+
 class ContainerDisplay extends StatefulWidget {
-  Future<ExpiredFutures> expiredFuturesData;
+  final ExpiredFutures expiredFuturesData;
 
   ContainerDisplay({Key key, @required this.expiredFuturesData})
       : super(key: key);
 
   @override
-  _ContainerDisplayState createState() => _ContainerDisplayState();
+  _ContainerDisplayState createState() => _ContainerDisplayState(expiredFuturesData);
 }
 
 class _ContainerDisplayState extends State<ContainerDisplay> {
+  final ExpiredFutures expiredFuturesData;
+
+  _ContainerDisplayState(this.expiredFuturesData);
+  
+
+
+  TypeChart typeChart;
+  List<PrunedDataContract> prunedData;
+  @override
+  void initState() {
+    super.initState();
+    typeChart = TypeChart.averagePrices;
+    prunedData = convertExpiredToPruned(expiredFuturesData);
+    print("fuck you");
+  }
+
+
+  void changeTypeChart(TypeChart newTypeChart) {
+    if (newTypeChart != typeChart) {
+      typeChart = newTypeChart;
+      setState(() {
+        
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    double fontSize = (MediaQuery.of(context).size.width > 1000) ? 36 : 20;
+    //double fontSize = (MediaQuery.of(context).size.width > 1000) ? 36 : 20;
+    Widget displayChart = (typeChart == TypeChart.averagePrices) ? ftxHistogram(prunedData) : ftxScatter(prunedData);
 
     return (MediaQuery.of(context).size.width > 550)
         ? Expanded(
@@ -182,13 +245,39 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
               child: Row(
                 children: [
                   Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
+                        height: 50,
+                        width: 150,
+                        child: RaisedButton(
+                          onPressed: () => changeTypeChart(
+                            TypeChart.averagePrices,
+                          ),
+                          child: Text("Average\nPrices"),
+                          color: (typeChart == TypeChart.averagePrices) ? Colors.green[500] : Colors.grey[300],
+                        ),
+                      ),
+                      Container(
+                        height: 50,
+                      ),
+                      Container(
+                        height: 50,
+                        width: 150,
+                        child: RaisedButton(
+                          onPressed: () => changeTypeChart(
+                            TypeChart.confidenceIntervals,
+                          ),
+                          child: Text("Confidence\nIntervals"),
+                          color: (typeChart == TypeChart.confidenceIntervals) ? Colors.green[500] : Colors.grey[300],
+                        ),
+                      ),
+                      /*
+                      Container(
                         height: 25,
                         child: RaisedButton(
                           onPressed: null,
-                          child: Text("Button0"),
+                          child: Text("Button0"),   ////// PERCENTS?
                         ),
                       ),
                       Container(
@@ -198,56 +287,15 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                           child: Text("Button0"),
                         ),
                       ),
-                      Container(
-                        height: 25,
-                        child: RaisedButton(
-                          onPressed: null,
-                          child: Text("Button0"),
-                        ),
-                      ),
-                      Container(
-                        height: 25,
-                        child: RaisedButton(
-                          onPressed: null,
-                          child: Text("Button0"),
-                        ),
-                      ),
+                      */
                     ],
                   ),
                   Container(
                     width: 50,
                   ),
                   Expanded(
-                      /*
-                    child: Container(
-                      child: SimpleBarChart.withSampleData(),
-                    ),
-                    */
-                      child: FutureBuilder<ExpiredFutures>(
-                          future: widget.expiredFuturesData,
-                          builder: (BuildContext context,
-                              AsyncSnapshot<ExpiredFutures> snapshot) {
-                            if (snapshot.hasData) {
-                              //return SimpleBarChart.withSampleData();
-                              return ftxHistogram(snapshot.data);
-                            } else if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            } else {
-                              return Column(
-                                children: [
-                                  SizedBox(
-                                    child: CircularProgressIndicator(),
-                                    width: 60,
-                                    height: 60,
-                                  ),
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 16),
-                                    child: Text('Awaiting result...'),
-                                  )
-                                ],
-                              );
-                            }
-                          })),
+                    child: displayChart,
+                  ),
                 ],
               ),
             ),
@@ -261,35 +309,16 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                     children: [
                       RaisedButton(
                         onPressed: null,
-                        child: Text("Button0"),
+                        child: Text("Avg Prices"),
                       ),
                       RaisedButton(
                         onPressed: null,
-                        child: Text("Button1"),
+                        child: Text("Conf. Int."),
                       ),
                     ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      RaisedButton(
-                        onPressed: null,
-                        child: Text("Button2"),
-                      ),
-                      RaisedButton(
-                        onPressed: null,
-                        child: Text("Button3"),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    height: 25,
                   ),
                   Expanded(
-                    child: Container(
-                      height: MediaQuery.of(context).size.height * 0.5,
-                      child: SimpleBarChart.withSampleData(),
-                    ),
+                    child: displayChart,
                   ),
                 ],
               ),
