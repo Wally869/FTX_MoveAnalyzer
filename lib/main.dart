@@ -6,6 +6,8 @@ import 'package:tailwind_colors/tailwind_colors.dart';
 import 'ftxQueryClasses.dart';
 import 'ftxQuery.dart';
 
+import 'ftxCharts.dart';
+
 const colorBackgroundMarketReplay = const Color(0xFF181632);
 const colorForegroundMarketReplay = const Color(0xFF282644);
 
@@ -44,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    //expiredFuturesData = fetchExpiredContractsData();
+    expiredFuturesData = fetchExpiredContractsData();
   }
 
   void callRefresh() {
@@ -88,7 +90,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     border: Border.all(color: TWColors.blue[700], width: 2.0),
                   ),
                 ),
-                ContainerDisplay(),
+                ContainerDisplay(
+                  expiredFuturesData: expiredFuturesData,
+                ),
               ],
             )),
       ),
@@ -157,7 +161,17 @@ class ContainerHeader extends StatelessWidget {
   }
 }
 
-class ContainerDisplay extends StatelessWidget {
+class ContainerDisplay extends StatefulWidget {
+  Future<ExpiredFutures> expiredFuturesData;
+
+  ContainerDisplay({Key key, @required this.expiredFuturesData})
+      : super(key: key);
+
+  @override
+  _ContainerDisplayState createState() => _ContainerDisplayState();
+}
+
+class _ContainerDisplayState extends State<ContainerDisplay> {
   @override
   Widget build(BuildContext context) {
     double fontSize = (MediaQuery.of(context).size.width > 1000) ? 36 : 20;
@@ -204,10 +218,36 @@ class ContainerDisplay extends StatelessWidget {
                     width: 50,
                   ),
                   Expanded(
+                      /*
                     child: Container(
                       child: SimpleBarChart.withSampleData(),
                     ),
-                  ),
+                    */
+                      child: FutureBuilder<ExpiredFutures>(
+                          future: widget.expiredFuturesData,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<ExpiredFutures> snapshot) {
+                            if (snapshot.hasData) {
+                              //return SimpleBarChart.withSampleData();
+                              return ftxHistogram(snapshot.data);
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              return Column(
+                                children: [
+                                  SizedBox(
+                                    child: CircularProgressIndicator(),
+                                    width: 60,
+                                    height: 60,
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 16),
+                                    child: Text('Awaiting result...'),
+                                  )
+                                ],
+                              );
+                            }
+                          })),
                 ],
               ),
             ),
