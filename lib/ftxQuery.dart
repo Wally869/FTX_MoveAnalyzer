@@ -68,7 +68,8 @@ class PrunedDataContract {
 List<PrunedDataContract> convertExpiredToPruned(ExpiredFutures expiredFuturesData) {
   List<PrunedDataContract> prunedDatas = new List<PrunedDataContract>();
   for (int i = 0; i < expiredFuturesData.result.length; i++) {
-    if (expiredFuturesData.result[i].type == "move"){
+    if (expiredFuturesData.result[i].type == "move" && expiredFuturesData.result[i].group == "daily" ){
+      
       prunedDatas.add(new PrunedDataContract(expiredFuturesData.result[i]));
 
     }

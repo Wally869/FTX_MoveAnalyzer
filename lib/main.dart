@@ -191,11 +191,7 @@ class ContainerHeader extends StatelessWidget {
   }
 }
 
-
-enum TypeChart {
-  averagePrices,
-  confidenceIntervals
-}
+enum TypeChart { averageDollar, averagePercent, confidenceIntervals }
 
 class ContainerDisplay extends StatefulWidget {
   final ExpiredFutures expiredFuturesData;
@@ -204,40 +200,42 @@ class ContainerDisplay extends StatefulWidget {
       : super(key: key);
 
   @override
-  _ContainerDisplayState createState() => _ContainerDisplayState(expiredFuturesData);
+  _ContainerDisplayState createState() =>
+      _ContainerDisplayState(expiredFuturesData);
 }
 
 class _ContainerDisplayState extends State<ContainerDisplay> {
   final ExpiredFutures expiredFuturesData;
 
   _ContainerDisplayState(this.expiredFuturesData);
-  
-
 
   TypeChart typeChart;
   List<PrunedDataContract> prunedData;
   @override
   void initState() {
     super.initState();
-    typeChart = TypeChart.averagePrices;
+    typeChart = TypeChart.averageDollar;
     prunedData = convertExpiredToPruned(expiredFuturesData);
-    print("fuck you");
   }
-
 
   void changeTypeChart(TypeChart newTypeChart) {
     if (newTypeChart != typeChart) {
       typeChart = newTypeChart;
-      setState(() {
-        
-      });
+      setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
     //double fontSize = (MediaQuery.of(context).size.width > 1000) ? 36 : 20;
-    Widget displayChart = (typeChart == TypeChart.averagePrices) ? ftxHistogram(prunedData) : ftxScatter(prunedData);
+    Widget displayChart = (typeChart == TypeChart.averageDollar)
+        ? ftxHistogram(prunedData, false)
+        : (typeChart == TypeChart.averagePercent)
+            ? ftxHistogram(prunedData, true)
+            : ftxScatter(prunedData);
+
+    TextStyle selectedButtonStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
+    TextStyle unselectedButtonStyle = TextStyle(color: TWColors.blue[700], fontWeight: FontWeight.bold);
 
     return (MediaQuery.of(context).size.width > 550)
         ? Expanded(
@@ -252,14 +250,26 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                         width: 150,
                         child: RaisedButton(
                           onPressed: () => changeTypeChart(
-                            TypeChart.averagePrices,
+                            TypeChart.averageDollar,
                           ),
-                          child: Text("Average\nPrices"),
-                          color: (typeChart == TypeChart.averagePrices) ? Colors.green[500] : Colors.grey[300],
+                          child: Text("Avg. \$", style: (typeChart == TypeChart.averageDollar) ? selectedButtonStyle : unselectedButtonStyle,),
+                          color: (typeChart == TypeChart.averageDollar)
+                              ? TWColors.blue[700]
+                              : Colors.grey[300],
                         ),
                       ),
                       Container(
                         height: 50,
+                        width: 150,
+                        child: RaisedButton(
+                          onPressed: () => changeTypeChart(
+                            TypeChart.averagePercent,
+                          ),
+                          child: Text("Avg. %", style: (typeChart == TypeChart.averagePercent) ? selectedButtonStyle : unselectedButtonStyle,),
+                          color: (typeChart == TypeChart.averagePercent)
+                              ? TWColors.blue[700]
+                              : Colors.grey[300],
+                        ),
                       ),
                       Container(
                         height: 50,
@@ -268,26 +278,12 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                           onPressed: () => changeTypeChart(
                             TypeChart.confidenceIntervals,
                           ),
-                          child: Text("Confidence\nIntervals"),
-                          color: (typeChart == TypeChart.confidenceIntervals) ? Colors.green[500] : Colors.grey[300],
+                          child: Text("Conf. Interv.", style: (typeChart == TypeChart.confidenceIntervals) ? selectedButtonStyle : unselectedButtonStyle,),
+                          color: (typeChart == TypeChart.confidenceIntervals)
+                              ? TWColors.blue[700]
+                              : Colors.grey[300],
                         ),
                       ),
-                      /*
-                      Container(
-                        height: 25,
-                        child: RaisedButton(
-                          onPressed: null,
-                          child: Text("Button0"),   ////// PERCENTS?
-                        ),
-                      ),
-                      Container(
-                        height: 25,
-                        child: RaisedButton(
-                          onPressed: null,
-                          child: Text("Button0"),
-                        ),
-                      ),
-                      */
                     ],
                   ),
                   Container(
@@ -305,15 +301,43 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      RaisedButton(
-                        onPressed: null,
-                        child: Text("Avg Prices"),
+                      Container(
+                        width: 70,
+                        child: RaisedButton(
+                          onPressed: () => changeTypeChart(
+                            TypeChart.averageDollar,
+                          ),
+                          child: Text("Avg. \$", style: (typeChart == TypeChart.averageDollar) ? selectedButtonStyle : unselectedButtonStyle,),
+                          color: (typeChart == TypeChart.averageDollar)
+                              ? TWColors.blue[700]
+                              : Colors.grey[300],
+                        ),
                       ),
-                      RaisedButton(
-                        onPressed: null,
-                        child: Text("Conf. Int."),
+                      Container(
+                        width: 70,
+                        child: RaisedButton(
+                          onPressed: () => changeTypeChart(
+                            TypeChart.averagePercent,
+                          ),
+                          child: Text("Avg. %", style: (typeChart == TypeChart.averagePercent) ? selectedButtonStyle : unselectedButtonStyle,),
+                          color: (typeChart == TypeChart.averagePercent)
+                              ? TWColors.blue[700]
+                              : Colors.grey[300],
+                        ),
+                      ),
+                      Container(
+                        width: 70,
+                        child: RaisedButton(
+                          onPressed: () => changeTypeChart(
+                            TypeChart.confidenceIntervals,
+                          ),
+                          child: Text("Conf. Interv.", style: (typeChart == TypeChart.confidenceIntervals) ? selectedButtonStyle : unselectedButtonStyle,),
+                          color: (typeChart == TypeChart.confidenceIntervals)
+                              ? TWColors.blue[700]
+                              : Colors.grey[300],
+                        ),
                       ),
                     ],
                   ),
