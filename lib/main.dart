@@ -40,11 +40,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Future<ExpiredFutures> expiredFuturesData;
+  Future<MoveResult> moveContractdata;
 
   @override
   void initState() {
     super.initState();
     expiredFuturesData = fetchExpiredContractsData();
+    moveContractdata = fetchMoveData();
   }
 
   void callRefresh() {
@@ -79,6 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               children: [
                 ContainerHeader(
+                  moveData: moveContractdata,
                   refreshFunction: callRefresh,
                 ),
                 Container(
@@ -130,10 +133,42 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+class ContainerHeaderDataDisplay extends StatelessWidget {
+  final String title;
+  final String value;
+
+  ContainerHeaderDataDisplay(this.title, this.value);
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Column(
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: TWColors.blue[500],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          value + "\$",
+          style: TextStyle(
+            color: TWColors.blue[700],
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class ContainerHeader extends StatelessWidget {
+  Future<MoveResult> moveData;
   final refreshFunction;
 
-  ContainerHeader({this.refreshFunction});
+  ContainerHeader({this.moveData, this.refreshFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -152,10 +187,55 @@ class ContainerHeader extends StatelessWidget {
                   color: TWColors.blue[700],
                 ),
               ),
-              Text("Placeholder prices"),
+              Expanded(
+                child: FutureBuilder<MoveResult>(
+                  future: moveData,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<MoveResult> snapshot) {
+                    if (snapshot.hasData) {
+                      //return SimpleBarChart.withSampleData();
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ContainerHeaderDataDisplay(
+                            snapshot.data.name,
+                            snapshot.data.last.toString(),
+                          ),
+                          ContainerHeaderDataDisplay(
+                            "BTC-PERP",
+                            snapshot.data.index.toString().split(".")[0],
+                          ),
+                        ],
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return Column(
+                        children: [
+                          SizedBox(
+                            child: CircularProgressIndicator(),
+                            width: 60,
+                            height: 60,
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(top: 16),
+                            child: Text('Fetching Data...'),
+                          )
+                        ],
+                      );
+                    }
+                  },
+                ),
+              ),
               RaisedButton(
                 onPressed: () => refreshFunction(),
-                child: Text("Refresh"),
+                child: Text(
+                  "Refresh",
+                  style: TextStyle(
+                    color: TWColors.blue[700],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           )
@@ -176,13 +256,56 @@ class ContainerHeader extends StatelessWidget {
                   Container(
                     height: 10,
                   ),
-                  Text("Placeholder prices"),
+                  FutureBuilder<MoveResult>(
+                    future: moveData,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<MoveResult> snapshot) {
+                      if (snapshot.hasData) {
+                        //return SimpleBarChart.withSampleData();
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ContainerHeaderDataDisplay(
+                              snapshot.data.name,
+                              snapshot.data.last.toString(),
+                            ),
+                            ContainerHeaderDataDisplay(
+                              "BTC-PERP",
+                              snapshot.data.index.toString().split(".")[0],
+                            ),
+                          ],
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              child: CircularProgressIndicator(),
+                              width: 60,
+                              height: 60,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: Text('Fetching Data...'),
+                            )
+                          ],
+                        );
+                      }
+                    },
+                  ),
                   Container(
                     height: 10,
                   ),
                   RaisedButton(
                     onPressed: () => refreshFunction(),
-                    child: Text("Refresh"),
+                    child: Text(
+                      "Refresh",
+                      style: TextStyle(
+                        color: TWColors.blue[700],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -234,8 +357,10 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
             ? ftxHistogram(prunedData, true)
             : ftxScatter(prunedData);
 
-    TextStyle selectedButtonStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
-    TextStyle unselectedButtonStyle = TextStyle(color: TWColors.blue[700], fontWeight: FontWeight.bold);
+    TextStyle selectedButtonStyle =
+        TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
+    TextStyle unselectedButtonStyle =
+        TextStyle(color: TWColors.blue[700], fontWeight: FontWeight.bold);
 
     return (MediaQuery.of(context).size.width > 550)
         ? Expanded(
@@ -252,7 +377,12 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                           onPressed: () => changeTypeChart(
                             TypeChart.averageDollar,
                           ),
-                          child: Text("Avg. \$", style: (typeChart == TypeChart.averageDollar) ? selectedButtonStyle : unselectedButtonStyle,),
+                          child: Text(
+                            "Avg. \$",
+                            style: (typeChart == TypeChart.averageDollar)
+                                ? selectedButtonStyle
+                                : unselectedButtonStyle,
+                          ),
                           color: (typeChart == TypeChart.averageDollar)
                               ? TWColors.blue[700]
                               : Colors.grey[300],
@@ -265,7 +395,12 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                           onPressed: () => changeTypeChart(
                             TypeChart.averagePercent,
                           ),
-                          child: Text("Avg. %", style: (typeChart == TypeChart.averagePercent) ? selectedButtonStyle : unselectedButtonStyle,),
+                          child: Text(
+                            "Avg. %",
+                            style: (typeChart == TypeChart.averagePercent)
+                                ? selectedButtonStyle
+                                : unselectedButtonStyle,
+                          ),
                           color: (typeChart == TypeChart.averagePercent)
                               ? TWColors.blue[700]
                               : Colors.grey[300],
@@ -278,7 +413,12 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                           onPressed: () => changeTypeChart(
                             TypeChart.confidenceIntervals,
                           ),
-                          child: Text("Conf. Interv.", style: (typeChart == TypeChart.confidenceIntervals) ? selectedButtonStyle : unselectedButtonStyle,),
+                          child: Text(
+                            "Conf. Interv.",
+                            style: (typeChart == TypeChart.confidenceIntervals)
+                                ? selectedButtonStyle
+                                : unselectedButtonStyle,
+                          ),
                           color: (typeChart == TypeChart.confidenceIntervals)
                               ? TWColors.blue[700]
                               : Colors.grey[300],
@@ -309,7 +449,12 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                           onPressed: () => changeTypeChart(
                             TypeChart.averageDollar,
                           ),
-                          child: Text("Avg. \$", style: (typeChart == TypeChart.averageDollar) ? selectedButtonStyle : unselectedButtonStyle,),
+                          child: Text(
+                            "Avg. \$",
+                            style: (typeChart == TypeChart.averageDollar)
+                                ? selectedButtonStyle
+                                : unselectedButtonStyle,
+                          ),
                           color: (typeChart == TypeChart.averageDollar)
                               ? TWColors.blue[700]
                               : Colors.grey[300],
@@ -321,7 +466,12 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                           onPressed: () => changeTypeChart(
                             TypeChart.averagePercent,
                           ),
-                          child: Text("Avg. %", style: (typeChart == TypeChart.averagePercent) ? selectedButtonStyle : unselectedButtonStyle,),
+                          child: Text(
+                            "Avg. %",
+                            style: (typeChart == TypeChart.averagePercent)
+                                ? selectedButtonStyle
+                                : unselectedButtonStyle,
+                          ),
                           color: (typeChart == TypeChart.averagePercent)
                               ? TWColors.blue[700]
                               : Colors.grey[300],
@@ -333,7 +483,12 @@ class _ContainerDisplayState extends State<ContainerDisplay> {
                           onPressed: () => changeTypeChart(
                             TypeChart.confidenceIntervals,
                           ),
-                          child: Text("Conf. Interv.", style: (typeChart == TypeChart.confidenceIntervals) ? selectedButtonStyle : unselectedButtonStyle,),
+                          child: Text(
+                            "Conf. Interv.",
+                            style: (typeChart == TypeChart.confidenceIntervals)
+                                ? selectedButtonStyle
+                                : unselectedButtonStyle,
+                          ),
                           color: (typeChart == TypeChart.confidenceIntervals)
                               ? TWColors.blue[700]
                               : Colors.grey[300],

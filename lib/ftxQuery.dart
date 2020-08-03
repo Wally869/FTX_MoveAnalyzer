@@ -6,6 +6,13 @@ import 'ftxQueryClasses.dart';
 const String corsEndpoint = "https://lendfinex-cors.herokuapp.com/";
 const String apiEndpoint = "https://ftx.com/api/expired_futures";
 
+//
+//
+/*     GETTING EXPIRED FUTURES         */
+//
+//
+//
+
 Future<ExpiredFutures> fetchExpiredContractsData() async {
   Map<String, String> headersRequest = new Map<String, String>();
   headersRequest["Access-Control-Allow-Origin"] = "*";
@@ -65,34 +72,50 @@ class PrunedDataContract {
   }
 }
 
-List<PrunedDataContract> convertExpiredToPruned(ExpiredFutures expiredFuturesData) {
+List<PrunedDataContract> convertExpiredToPruned(
+    ExpiredFutures expiredFuturesData) {
   List<PrunedDataContract> prunedDatas = new List<PrunedDataContract>();
   for (int i = 0; i < expiredFuturesData.result.length; i++) {
-    if (expiredFuturesData.result[i].type == "move" && expiredFuturesData.result[i].group == "daily" ){
-      
+    if (expiredFuturesData.result[i].type == "move" &&
+        expiredFuturesData.result[i].group == "daily") {
       prunedDatas.add(new PrunedDataContract(expiredFuturesData.result[i]));
-
     }
-
   }
 
   return prunedDatas;
 }
 
-main() {
-  List<PrunedDataContract> prunedDatas = new List<PrunedDataContract>();
-  List<PrunedDataContract> feelsMondayMan;
-  fetchExpiredContractsData().then((expiredFuturesData) => {
-        for (int i = 0; i < expiredFuturesData.result.length; i++)
-          {
-            prunedDatas
-                .add(new PrunedDataContract(expiredFuturesData.result[i]))
-          },
-        feelsMondayMan =
-            prunedDatas.where((obj) => (obj.contractDay == "Monday")).toList(),
-        print(feelsMondayMan[0].contractDay)
-      });
+//
+//
+//
+/*        GETTING CURRENT PRICES        */
+//
+//
+//
 
-  //print(DateTime.parse("2020-07-29").month);
-  //print(prunedDatas[0]);
+
+
+String apiFuturesEndpoint = "https://ftx.com/api/futures/BTC-MOVE-0803";
+
+
+Future<MoveResult> fetchMoveData() async {
+  Map<String, String> headersRequest = new Map<String, String>();
+  headersRequest["Access-Control-Allow-Origin"] = "*";
+  var response = await http.get(corsEndpoint + apiFuturesEndpoint,
+      headers: headersRequest); //http.get(corsEndpoint + apiEndpoint);
+
+  //var response = await http.get(apiEndpoint);
+  if (response.statusCode == 200) {
+    return MoveResponseAPI.fromJson(json.decode(response.body)).result;
+  } else {
+    throw Exception("Failed to fetch Expired Contracts Data. Status Code: " +
+        response.statusCode.toString());
+  }
 }
+
+
+main() {
+  fetchMoveData().then((value) => print(value.name));
+
+}
+
