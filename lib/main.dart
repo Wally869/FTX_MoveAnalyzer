@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:tailwind_colors/tailwind_colors.dart';
+
+//import 'package:url_launcher/url_launcher.dart';
+import 'dart:html' as html;
+
 
 import 'ftxQueryClasses.dart';
 import 'ftxQuery.dart';
@@ -62,72 +65,68 @@ class _MyHomePageState extends State<MyHomePage> {
       backgroundColor: TWColors.blue[100],
       body: Center(
         child: Container(
-            width: (widthWindow > 1000)
-                ? (widthWindow > 1500) ? 1000 : widthWindow * 0.65
-                : widthWindow,
-            height: (heightWindow > 750) ? heightWindow * 0.7 : double.infinity,
-            padding: EdgeInsets.all(50),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              boxShadow: [
-                BoxShadow(
-                  spreadRadius: -3,
-                  blurRadius: 10,
-                  offset: Offset(0, 3),
+          width: (widthWindow > 1000)
+              ? (widthWindow > 1500) ? 1000 : widthWindow * 0.65
+              : widthWindow,
+          height: (heightWindow > 750) ? heightWindow * 0.7 : double.infinity,
+          padding: EdgeInsets.all(50),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            boxShadow: [
+              BoxShadow(
+                spreadRadius: -3,
+                blurRadius: 10,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              ContainerHeader(
+                moveData: moveContractdata,
+                refreshFunction: callRefresh,
+              ),
+              Container(
+                // SEPERATOR
+                margin: EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  border: Border.all(color: TWColors.blue[700], width: 2.0),
                 ),
-              ],
-            ),
-            child: Column(
-              children: [
-                ContainerHeader(
-                  moveData: moveContractdata,
-                  refreshFunction: callRefresh,
+              ),
+              Container(
+                child: FutureBuilder<ExpiredFutures>(
+                  future: expiredFuturesData,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<ExpiredFutures> snapshot) {
+                    if (snapshot.hasData) {
+                      //return SimpleBarChart.withSampleData();
+                      return ContainerDisplay(
+                        expiredFuturesData: snapshot.data,
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return Column(
+                        children: [
+                          SizedBox(
+                            child: CircularProgressIndicator(),
+                            width: 60,
+                            height: 60,
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(top: 16),
+                            child: Text('Awaiting result...'),
+                          )
+                        ],
+                      );
+                    }
+                  },
                 ),
-                Container(
-                  // SEPERATOR
-                  margin: EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: TWColors.blue[700], width: 2.0),
-                  ),
-                ),
-                Container(
-                  /*
-                    child: Container(
-                      child: SimpleBarChart.withSampleData(),
-                    ),
-                    */
-                  child: FutureBuilder<ExpiredFutures>(
-                    future: expiredFuturesData,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<ExpiredFutures> snapshot) {
-                      if (snapshot.hasData) {
-                        //return SimpleBarChart.withSampleData();
-                        return ContainerDisplay(
-                          expiredFuturesData: snapshot.data,
-                        );
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        return Column(
-                          children: [
-                            SizedBox(
-                              child: CircularProgressIndicator(),
-                              width: 60,
-                              height: 60,
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 16),
-                              child: Text('Awaiting result...'),
-                            )
-                          ],
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            )),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -244,14 +243,27 @@ class ContainerHeader extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  Text(
-                    "FTX Move\nAnalyzer",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'JetBrainsMono',
-                      fontSize: titleFontSize,
-                      color: TWColors.blue[700],
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        "FTX Move\nAnalyzer",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'JetBrainsMono',
+                          fontSize: titleFontSize,
+                          color: TWColors.blue[700],
+                        ),
+                      ),
+                      Container(
+                        width: 50,
+                        child: RaisedButton(
+                          child: Icon(Icons.folder_open),
+                          onPressed: () => {
+                            html.window.open("https://github.com/Wally869/FTX_MoveDisplay", ""),                            
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                   Container(
                     height: 10,
