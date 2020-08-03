@@ -4,7 +4,6 @@ import 'package:tailwind_colors/tailwind_colors.dart';
 //import 'package:url_launcher/url_launcher.dart';
 import 'dart:html' as html;
 
-
 import 'ftxQueryClasses.dart';
 import 'ftxQuery.dart';
 
@@ -54,6 +53,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void callRefresh() {
     print("refresh called");
+    expiredFuturesData = fetchExpiredContractsData();
+    moveContractdata = fetchMoveData();
+
+    setState(() {});
   }
 
   @override
@@ -254,6 +257,7 @@ class ContainerHeader extends StatelessWidget {
                           color: TWColors.blue[700],
                         ),
                       ),
+                      /*
                       Container(
                         width: 50,
                         child: RaisedButton(
@@ -263,6 +267,7 @@ class ContainerHeader extends StatelessWidget {
                           },
                         ),
                       ),
+                      */
                     ],
                   ),
                   Container(
