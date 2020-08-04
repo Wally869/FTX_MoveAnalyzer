@@ -1,6 +1,6 @@
 # FTX_MoveDisplay
 
-A Flutter app to visualize historical datas for MOVE, a bitcoin derivatives product traded on FTX. You can see it on the repo's github pages here: PLACEHOLDER_LINK
+A Flutter app to visualize historical datas for MOVE, a bitcoin derivatives product traded on FTX. You can see it on the repo's github pages here: https://wally869.github.io/FTX_MoveDisplay/
 
 The app was made using the master branch of Flutter, so you can build on all platforms (desktop, mobile and web). See Build section below.  
 
