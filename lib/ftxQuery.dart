@@ -3,7 +3,10 @@ import 'dart:convert';
 
 import 'ftxQueryClasses.dart';
 
-const String apiEndpoint = "https://ftx.com/api/expired_futures";
+const String apiEndpointFutures = "https://ftx.com/api/expired_futures";
+const String corsEndpoint = "https://lendfinex-cors.herokuapp.com/";
+
+const String allowedOrigin ="https://wally869.github.io/FTX_MoveDisplay/#/";
 
 //
 //
@@ -13,12 +16,10 @@ const String apiEndpoint = "https://ftx.com/api/expired_futures";
 //
 
 Future<ExpiredFutures> fetchExpiredContractsData() async {
-  /*
   Map<String, String> headersRequest = new Map<String, String>();
-  headersRequest["Access-Control-Allow-Origin"] = "*";
-  var response = await http.get(corsEndpoint + apiEndpoint, headers: headersRequest);
-  */
-  var response = await http.get(apiEndpoint);
+  headersRequest["Access-Control-Allow-Origin"] = allowedOrigin;
+  var response = await http.get(corsEndpoint + apiEndpointFutures,
+      headers: headersRequest);
 
   if (response.statusCode == 200) {
     return ExpiredFutures.fromJson(json.decode(response.body));
@@ -93,22 +94,19 @@ List<PrunedDataContract> convertExpiredToPruned(
 //
 //
 
-
-
 String apiFuturesEndpoint = "https://ftx.com/api/futures/BTC-MOVE-";
-
 
 Future<MoveResult> fetchMoveData() async {
   var today = new DateTime.now();
-  String contractDate = today.month.toString().padLeft(2, "0") + today.day.toString().padLeft(2, "0");
+  String contractDate = today.month.toString().padLeft(2, "0") +
+      today.day.toString().padLeft(2, "0");
 
-  /*
   Map<String, String> headersRequest = new Map<String, String>();
-  headersRequest["Access-Control-Allow-Origin"] = "*";
-  var response = await http.get(corsEndpoint + apiFuturesEndpoint + contractDate,
-      headers: headersRequest); //http.get(corsEndpoint + apiEndpoint);
-      */
-  var response = await http.get(apiFuturesEndpoint + contractDate);
+  headersRequest["Access-Control-Allow-Origin"] = allowedOrigin;
+
+  var response = await http.get(
+      corsEndpoint + apiFuturesEndpoint + contractDate,
+      headers: headersRequest);
 
   //var response = await http.get(apiEndpoint);
   if (response.statusCode == 200) {
@@ -119,9 +117,6 @@ Future<MoveResult> fetchMoveData() async {
   }
 }
 
-
 main() {
   fetchMoveData().then((value) => print(value.name));
-
 }
-
