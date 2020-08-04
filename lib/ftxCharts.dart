@@ -127,8 +127,9 @@ class ftxHistogram extends StatelessWidget {
           changedListener: (charts.SelectionModel model) {
             if (model.hasDatumSelection)
               pointerValue = model.selectedSeries[0]
-                  .measureFn(model.selectedDatum[0].index)
-                  .toStringAsFixed(2) + ((bIsPercent) ? "\%" : "\$");
+                      .measureFn(model.selectedDatum[0].index)
+                      .toStringAsFixed(2) +
+                  ((bIsPercent) ? "\%" : "\$");
           },
         ),
       ],
@@ -195,18 +196,20 @@ class ftxScatter extends StatelessWidget {
       ),
     );
 
+    num exclusion = median * 3;
+
     List<ScatterContractDisplayData> exclusionLine =
         new List<ScatterContractDisplayData>();
     exclusionLine.add(
       new ScatterContractDisplayData(
         0,
-        median * 3,
+        exclusion,
       ),
     );
     exclusionLine.add(
       new ScatterContractDisplayData(
         data.length - 1,
-        median * 3,
+        exclusion,
       ),
     );
 
@@ -229,7 +232,7 @@ class ftxScatter extends StatelessWidget {
 
     dataToDisplay.add(
       new charts.Series<ScatterContractDisplayData, int>(
-        id: "Median",
+        id: "Median: " + median.toStringAsFixed(2) + "\%",
         data: medianPoints,
         domainFn: (ScatterContractDisplayData displayData, _) =>
             displayData.idContract,
@@ -242,12 +245,13 @@ class ftxScatter extends StatelessWidget {
 
     dataToDisplay.add(
       new charts.Series<ScatterContractDisplayData, int>(
-        id: "Median",
+        id: "Anomaly Threshold: " + exclusion.toStringAsFixed(2) + "\%",
         data: exclusionLine,
         domainFn: (ScatterContractDisplayData displayData, _) =>
             displayData.idContract,
         measureFn: (ScatterContractDisplayData displayData, _) =>
             displayData.price,
+        labelAccessorFn: (ScatterContractDisplayData displayData, _) => "wut",
         colorFn: (_, __) => charts.ColorUtil.fromDartColor(TWColors.red[700]),
       )..setAttribute(charts.rendererIdKey, 'customLine'),
     );
@@ -259,13 +263,46 @@ class ftxScatter extends StatelessWidget {
       // Custom renderer configuration for the line series.
       customSeriesRenderers: [
         new charts.LineRendererConfig(
-            // ID used to link series to this renderer.
-            customRendererId: 'customLine',
-            // Configure the regression line to be painted above the points.
-            //
-            // By default, series drawn by the point renderer are painted on
-            // top of those drawn by a line renderer.
-            layoutPaintOrder: charts.LayoutViewPaintOrder.point + 1)
+          // ID used to link series to this renderer.
+          customRendererId: 'customLine',
+          // Configure the regression line to be painted above the points.
+          //
+          // By default, series drawn by the point renderer are painted on
+          // top of those drawn by a line renderer.
+          layoutPaintOrder: charts.LayoutViewPaintOrder.point + 1,
+        ),
+      ],
+      behaviors: [
+        charts.SeriesLegend(
+          position: charts.BehaviorPosition.top,
+          desiredMaxRows: 2,
+        ),
+        charts.SelectNearest(eventTrigger: charts.SelectionTrigger.tapAndDrag),
+        charts.LinePointHighlighter(
+          symbolRenderer: CustomCircleSymbolRenderer(),
+        ),
+      ],
+      selectionModels: [
+        charts.SelectionModelConfig(
+          type: charts.SelectionModelType.info,
+          changedListener: (charts.SelectionModel model) {
+            if (model.hasDatumSelection) {
+              List selectedDatum = [];
+              model.selectedDatum.forEach(
+                (charts.SeriesDatum datumPair) {
+                  selectedDatum.add(
+                    {
+                      'color': datumPair.series.colorFn(0),
+                      'text':
+                          '${datumPair.datum.idContract}: ${datumPair.datum.price}'
+                    },
+                  );
+                },
+              );
+              pointerValue = selectedDatum[0].text;
+            }
+          },
+        ),
       ],
     );
   }
