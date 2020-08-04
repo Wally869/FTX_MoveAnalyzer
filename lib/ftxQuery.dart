@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'ftxQueryClasses.dart';
 
-const String corsEndpoint = "https://lendfinex-cors.herokuapp.com/";
 const String apiEndpoint = "https://ftx.com/api/expired_futures";
 
 //
@@ -14,12 +13,13 @@ const String apiEndpoint = "https://ftx.com/api/expired_futures";
 //
 
 Future<ExpiredFutures> fetchExpiredContractsData() async {
+  /*
   Map<String, String> headersRequest = new Map<String, String>();
   headersRequest["Access-Control-Allow-Origin"] = "*";
-  var response = await http.get(corsEndpoint + apiEndpoint,
-      headers: headersRequest); //http.get(corsEndpoint + apiEndpoint);
+  var response = await http.get(corsEndpoint + apiEndpoint, headers: headersRequest);
+  */
+  var response = await http.get(apiEndpoint);
 
-  //var response = await http.get(apiEndpoint);
   if (response.statusCode == 200) {
     return ExpiredFutures.fromJson(json.decode(response.body));
   } else {
@@ -95,20 +95,26 @@ List<PrunedDataContract> convertExpiredToPruned(
 
 
 
-String apiFuturesEndpoint = "https://ftx.com/api/futures/BTC-MOVE-0803";
+String apiFuturesEndpoint = "https://ftx.com/api/futures/BTC-MOVE-";
 
 
 Future<MoveResult> fetchMoveData() async {
+  var today = new DateTime.now();
+  String contractDate = today.month.toString().padLeft(2, "0") + today.day.toString().padLeft(2, "0");
+
+  /*
   Map<String, String> headersRequest = new Map<String, String>();
   headersRequest["Access-Control-Allow-Origin"] = "*";
-  var response = await http.get(corsEndpoint + apiFuturesEndpoint,
+  var response = await http.get(corsEndpoint + apiFuturesEndpoint + contractDate,
       headers: headersRequest); //http.get(corsEndpoint + apiEndpoint);
+      */
+  var response = await http.get(apiFuturesEndpoint + contractDate);
 
   //var response = await http.get(apiEndpoint);
   if (response.statusCode == 200) {
     return MoveResponseAPI.fromJson(json.decode(response.body)).result;
   } else {
-    throw Exception("Failed to fetch Expired Contracts Data. Status Code: " +
+    throw Exception("Failed to fetch Current Move Data. Status Code: " +
         response.statusCode.toString());
   }
 }
