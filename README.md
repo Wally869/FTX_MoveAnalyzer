@@ -40,11 +40,12 @@ The app should be able to run on most mobile devices.
 
 1- Add link github to gh-pages site  
 2- No tooltip yet for charts  
-3- Adjust legend and radius of scatterplot to width screen
+3- Adjust legend and radius of scatterplot to width screen  
+4- Use another library for charting. flutters chart is a mess for tooltips
 
 ## Known Issues
 - Display will break down on iPhone 5/SE in landscape mode
 - Scatterchart too cluttered on mobile
 - Need to set adaptative legend dependent on screen width
-
+- Scatterplot legend not enough width in mobile mode
 
