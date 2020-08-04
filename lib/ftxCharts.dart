@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
@@ -5,11 +7,68 @@ import 'package:tailwind_colors/tailwind_colors.dart';
 
 import 'ftxQuery.dart';
 
+import 'package:charts_flutter/src/text_element.dart' as chartsTextElement;
+import 'package:charts_flutter/src/text_style.dart' as chartsTextStyle;
+
 class HistogramContractDisplayData {
   final String day;
   final num price;
 
   HistogramContractDisplayData(this.day, this.price);
+}
+
+String pointerValue = "";
+
+class CustomCircleSymbolRenderer extends charts.CircleSymbolRenderer {
+  @override
+  void paint(charts.ChartCanvas canvas, Rectangle<num> bounds,
+      {List<int> dashPattern,
+      charts.Color fillColor,
+      charts.FillPatternType fillPattern,
+      charts.Color strokeColor,
+      double strokeWidthPx}) {
+    super.paint(canvas, bounds,
+        dashPattern: dashPattern,
+        fillColor: charts.Color.white,
+        fillPattern: charts.FillPatternType.solid,
+        strokeColor: charts.Color.black,
+        strokeWidthPx: 1);
+
+    // Draw a bubble
+
+    final num bubbleHight = 40;
+    final num bubbleWidth = 120;
+    final num bubbleRadius = bubbleHight / 2.0;
+    final num bubbleBoundLeft = bounds.left;
+    final num bubbleBoundTop = bounds.top - bubbleHight;
+
+    canvas.drawRRect(
+      Rectangle(bubbleBoundLeft, bubbleBoundTop, bubbleWidth, bubbleHight),
+      fill: charts.Color.black,
+      stroke: charts.Color.black,
+      radius: bubbleRadius,
+      roundTopLeft: true,
+      roundBottomLeft: true,
+      roundBottomRight: true,
+      roundTopRight: true,
+    );
+
+    // Add text inside the bubble
+
+    final textStyle = chartsTextStyle.TextStyle();
+    textStyle.color = charts.Color.white;
+    textStyle.fontSize = 12;
+
+    final chartsTextElement.TextElement textElement =
+        chartsTextElement.TextElement(pointerValue, style: textStyle);
+
+    final num textElementBoundsLeft = ((bounds.left +
+            (bubbleWidth - textElement.measurement.horizontalSliceWidth) / 2))
+        .round();
+    final num textElementBoundsTop = (bounds.top - 30).round();
+
+    canvas.drawText(textElement, textElementBoundsLeft, textElementBoundsTop);
+  }
 }
 
 class ftxHistogram extends StatelessWidget {
@@ -59,6 +118,20 @@ class ftxHistogram extends StatelessWidget {
         ),
       ],
       animate: true,
+      behaviors: [
+        charts.LinePointHighlighter(
+            symbolRenderer: CustomCircleSymbolRenderer()),
+      ],
+      selectionModels: [
+        charts.SelectionModelConfig(
+          changedListener: (charts.SelectionModel model) {
+            if (model.hasDatumSelection)
+              pointerValue = model.selectedSeries[0]
+                  .measureFn(model.selectedDatum[0].index)
+                  .toStringAsFixed(2) + ((bIsPercent) ? "\%" : "\$");
+          },
+        ),
+      ],
     );
   }
 }
