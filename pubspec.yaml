@@ -1,5 +1,5 @@
-name: ftx_move_display
-description: A new Flutter project.
+name: ftx_move_analyzer
+description: Visualizing Historical Data of the FTX Move Contracts on Bitcoin
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
