@@ -4,6 +4,8 @@ A Flutter app to visualize historical datas for MOVE, a bitcoin derivatives prod
 
 The app was made using the master branch of Flutter, so you can build on all platforms (desktop, mobile and web). See Build section below.  
 
+If you've never traded on that exchange before, please consider using my referral link, you'll get 5% discount on fees: https://ftx.com/#a=3167343
+
 Some Related Stuff:
 - I thought about doing an app after seing romanornr's ftx-move-contracts golang algorithm. It's similar to this app, but on the CLI and with golang, [check it out!](https://github.com/romanornr/ftx-move-contracts)
 - A small article on the method I used in setting the threshold for the confidence interval: https://www.noveltech.dev/anomaly-detection-python/ 
