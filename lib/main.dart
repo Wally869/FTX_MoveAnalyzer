@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tailwind_colors/tailwind_colors.dart';
-
-//import 'package:url_launcher/url_launcher.dart';
-import 'dart:html' as html;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'ftxQueryClasses.dart';
 import 'ftxQuery.dart';
@@ -57,6 +55,15 @@ class _MyHomePageState extends State<MyHomePage> {
     moveContractdata = fetchMoveData();
 
     setState(() {});
+  }
+
+  void _launchURL(String url) async {
+    print("launchin url");
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw "Error: Could not launch $url";
+    }
   }
 
   @override
@@ -127,6 +134,24 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               ),
+              Container(
+                // SEPERATOR
+                margin: EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  border: Border.all(color: TWColors.blue[700], width: 2.0),
+                ),
+              ),
+              Container(
+                height: 50,
+                child: RaisedButton(
+                  child: Text(
+                    "Trade It Now!",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,),
+                  ),
+                  onPressed: () => _launchURL("https://ftx.com/#a=3167343"),
+                  color: TWColors.blue[700],
+                ),
+              ),
             ],
           ),
         ),
@@ -143,7 +168,6 @@ class ContainerHeaderDataDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Column(
       children: [
         Text(
@@ -257,17 +281,6 @@ class ContainerHeader extends StatelessWidget {
                           color: TWColors.blue[700],
                         ),
                       ),
-                      /*
-                      Container(
-                        width: 50,
-                        child: RaisedButton(
-                          child: Icon(Icons.folder_open),
-                          onPressed: () => {
-                            html.window.open("https://github.com/Wally869/FTX_MoveDisplay", ""),                            
-                          },
-                        ),
-                      ),
-                      */
                     ],
                   ),
                   Container(

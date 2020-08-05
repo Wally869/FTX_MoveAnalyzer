@@ -1,2 +1,0 @@
-{ask: null, bid: null, description: Bitcoin MOVE 2020-07-28 Contracts, enabled: false, expired: true, expiry: 2020-07-29T00:00:00+00:00, expiryDescription: 2020-07-28, group: daily, imfFactor: 0.002, index: 10932.315783760909, last: 225.0, lowerBound: 0.5, marginPrice: 10932.315783760909, mark: 229.29658098666, moveStart: 2020-07-28T00:00:00+00:00, name: BTC-MOVE-0728, perpetual: false, positionLimitWeight: 2.0, postOnly: false, priceIncrement: 0.5, sizeIncrement: 0.0001, type: move, underlying: BTC, underlyingDescription: Bitcoin, upperBound: 1323.0}
-3
